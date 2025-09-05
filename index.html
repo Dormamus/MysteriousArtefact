@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kelas — Nama Mata Pelajaran</title>
+  <meta name="description" content="Website kelas: info, silabus, jadwal, tugas, sumber." />
+  <!-- Google font (optional, but widely supported) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#2563eb; /* biru */
+      --accent-2:#06b6d4;
+      --radius:12px;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 6px 18px rgba(20,20,50,0.06);
+      color-scheme: light;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg), #eef2ff 120%);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:24px;
+    }
+
+    /* Container */
+    .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:20px;}
+
+    /* Header */
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.75));
+      padding:14px 18px;border-radius:16px;box-shadow:var(--shadow);backdrop-filter: blur(6px);
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;
+      box-shadow:0 6px 18px rgba(37,99,235,0.25);
+    }
+    .brand h1{margin:0;font-size:18px}
+    .brand p{margin:0;color:var(--muted);font-size:13px}
+
+    /* Nav */
+    nav{display:flex;gap:10px;align-items:center}
+    .nav-items{display:flex;gap:8px}
+    .nav-link{
+      background:none;border:0;padding:8px 12px;border-radius:10px;font-weight:600;color:var(--muted);
+      text-decoration:none;cursor:pointer
+    }
+    .nav-link.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff}
+    .cta{padding:8px 12px;border-radius:10px;border:1px solid rgba(15,23,42,0.06);background:var(--card);cursor:pointer}
+
+    /* Grid layout for main */
+    .main{
+      display:grid;grid-template-columns: 1fr 340px;gap:18px;
+    }
+
+    /* Cards */
+    .card{
+      background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);
+    }
+
+    .hero{
+      display:flex;flex-direction:column;gap:12px;
+    }
+    .hero h2{margin:0;font-size:22px}
+    .meta{color:var(--muted);font-size:14px}
+
+    /* Syllabus & sections */
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:6px 10px;border-radius:999px;background:#f3f4f6;font-size:13px;color:var(--muted)}
+
+    /* Schedule table */
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #f1f5f9}
+    th{font-weight:600;color:var(--muted);font-size:13px}
+
+    /* Assignment cards */
+    .assign-list{display:grid;gap:12px}
+    .assign{
+      display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;border:1px dashed rgba(15,23,42,0.04);
+      background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))
+    }
+    .assign h4{margin:0;font-size:15px}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Sidebar */
+    aside .card + .card{margin-top:12px}
+    .resources li{margin-bottom:8px}
+
+    /* Footer */
+    footer{padding:12px 0;color:var(--muted);font-size:13px;text-align:center}
+
+    /* Responsive */
+    @media (max-width:950px){
+      .main{grid-template-columns:1fr}
+      nav .nav-items{display:none}
+      .mobile-menu{display:inline-block}
+    }
+
+    /* mobile menu button */
+    .mobile-menu{display:none;border:0;background:none;padding:8px;border-radius:8px;cursor:pointer}
+
+    /* modal */
+    .modal-backdrop{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);
+      z-index:60;opacity:0;pointer-events:none;transition:opacity .18s ease;
+    }
+    .modal-backdrop.show{opacity:1;pointer-events:auto}
+    .modal{background:var(--card);padding:18px;border-radius:12px;max-width:720px;width:92%;box-shadow:0 30px 80px rgba(2,6,23,0.5)}
+    .modal h3{margin:0 0 6px 0}
+
+    /* utilities */
+    .flex{display:flex;gap:12px;align-items:center}
+    .space-between{justify-content:space-between}
+    .muted{color:var(--muted)}
+    .btn{
+      display:inline-block;padding:8px 12px;border-radius:10px;border:0;font-weight:600;cursor:pointer;
+      text-decoration:none;
+    }
+    .btn.outline{background:transparent;border:1px solid #e6edf9;color:var(--accent)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white}
+    .search{display:flex;gap:8px;align-items:center}
+    input[type="search"], input[type="text"], textarea, select{
+      width:100%;padding:10px;border-radius:10px;border:1px solid #e6edf9;background:transparent;
+      outline:none;font-size:14px
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">K</div>
+        <div>
+          <h1>Nama Mata Pelajaran</h1>
+          <p class="muted">Kelas 12 — Semester 1</p>
+        </div>
+      </div>
+
+      <nav aria-label="Primary">
+        <div class="nav-items" role="navigation">
+          <button class="nav-link" data-scroll="home">Beranda</button>
+          <button class="nav-link" data-scroll="silabus">Silabus</button>
+          <button class="nav-link" data-scroll="jadwal">Jadwal</button>
+          <button class="nav-link" data-scroll="tugas">Tugas</button>
+        </div>
+
+        <div class="flex">
+          <button class="mobile-menu" aria-label="Open menu" id="openMenu">☰</button>
+          <a class="btn outline" href="#" id="resourcesToggle">Sumber</a>
+          <a class="btn primary" href="#contact">Gabung Kelas</a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main content -->
+    <main class="main" id="home">
+      <section>
+        <div class="card hero">
+          <div class="section-title">
+            <div>
+              <h2>Selamat datang di Kelas — Nama Mata Pelajaran</h2>
+              <p class="meta">Pengajar: Bapak/Ibu Contoh • Email: guru@sekolah.edu • Ruang: A1</p>
+            </div>
+            <div class="chips">
+              <span class="chip">Kelas: 12</span>
+              <span class="chip">Semester 1</span>
+              <span class="chip">Tipe: Tatap Muka</span>
+            </div>
+          </div>
+
+          <p class="muted">
+            Halaman ini memuat info penting: silabus, jadwal, tugas, dan materi.
+            Gunakan tombol "Gabung Kelas" untuk mendapatkan pemberitahuan.
+          </p>
+
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+            <button class="btn primary" id="openJoin">Daftar Bahan</button>
+            <button class="btn" id="openAbout">Tentang Kelas</button>
+            <div style="flex:1;min-width:220px">
+              <label class="muted" for="quick-search">Cari materi / tugas</label>
+              <div class="search">
+                <input id="quick-search" type="search" placeholder="Ketik kata kunci, contoh: 'Ulangan'">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Silabus -->
+        <div class="card" id="silabus" style="margin-top:12px">
+          <div class="section-title">
+            <h3>Silabus & Kompetensi</h3>
+            <div class="muted">Durasi: 16 minggu</div>
+          </div>
+
+          <ol>
+            <li><strong>Minggu 1-2:</strong> Pengantar & Konsep Dasar — Tujuan pembelajaran, indikator.</li>
+            <li><strong>Minggu 3-6:</strong> Materi Utama I — Teori, latihan, kuis.</li>
+            <li><strong>Minggu 7-9:</strong> Materi Utama II — Proyek mini dan presentasi.</li>
+            <li><strong>Minggu 10-12:</strong> Ulangan Tengah Semester & remedial.</li>
+            <li><strong>Minggu 13-16:</strong> Materi lanjut, proyek akhir, penilaian akhir.</li>
+          </ol>
+
+          <p class="muted small">Catatan: silabus ini contoh — guru dapat mengubah sesuai kebutuhan.</p>
+        </div>
+
+        <!-- Jadwal -->
+        <div class="card" id="jadwal" style="margin-top:12px">
+          <div class="section-title">
+            <h3>Jadwal Mingguan</h3>
+            <div class="muted">Terakhir diperbarui: 2025-09-01</div>
+          </div>
+
+          <table aria-label="Jadwal kelas">
+            <thead>
+              <tr><th>Hari</th><th>Waktu</th><th>Topik</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Senin</td><td>08:00 - 09:30</td><td>Pengenalan & administrasi</td></tr>
+              <tr><td>Rabu</td><td>10:00 - 11:30</td><td>Latihan & diskusi</td></tr>
+              <tr><td>Jumat</td><td>13:00 - 14:30</td><td>Penilaian formatif</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tugas -->
+        <div class="card" id="tugas" style="margin-top:12px">
+          <div class="section-title">
+            <h3>Tugas & Penilaian</h3>
+            <div class="muted">Kumpulkan melalui email atau platform KBM</div>
+          </div>
+
+          <div class="assign-list">
+            <article class="assign" data-id="asg-1">
+              <div class="flex space-between">
+                <h4>Tugas 1 — Ringkasan Bab 1</h4>
+                <div class="small muted">Deadline: 2025-09-14</div>
+              </div>
+              <p class="small muted">Tuliskan ringkasan 500 kata dan 3 pertanyaan diskusi. Format: PDF.</p>
+              <div style="display:flex;gap:8px;">
+                <button class="btn primary" data-open-modal="asg-1">Detail</button>
+                <a class="btn outline" href="#" onclick="alert('Contoh: upload melalui email');return false">Kirim</a>
+              </div>
+            </article>
+
+            <article class="assign" data-id="asg-2">
+              <div class="flex space-between">
+                <h4>Proyek Mini — Kelompok</h4>
+                <div class="small muted">Deadline: 2025-10-05</div>
+              </div>
+              <p class="small muted">Buat presentasi 10 menit + laporan singkat. Nilai: 30% dari tugas.</p>
+              <div style="display:flex;gap:8px;">
+                <button class="btn primary" data-open-modal="asg-2">Detail</button>
+                <a class="btn outline" href="#" onclick="alert('Unduh template proyek');return false">Template</a>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Materi/Tautan -->
+        <div class="card" style="margin-top:12px">
+          <div class="section-title">
+            <h3>Materi & Tautan Cepat</h3>
+            <div class="chips">
+              <span class="chip">Materi PDF</span>
+              <span class="chip">Video</span>
+              <span class="chip">Kuis</span>
+            </div>
+          </div>
+
+          <ul>
+            <li><a href="#" onclick="alert('Buka Materi 1');return false">Materi 1 — Pengantar</a></li>
+            <li><a href="#" onclick="alert('Buka Video Pembelajaran');return false">Video: Konsep Utama</a></li>
+            <li><a href="#" onclick="alert('Buka Kuis');return false">Kuis Akhir Bab</a></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Sidebar -->
+      <aside>
+        <div class="card">
+          <h4>Pengumuman</h4>
+          <p class="small muted">Tidak ada pengumuman baru.</p>
+        </div>
+
+        <div class="card">
+          <h4>Quick Links</h4>
+          <ul class="resources" style="list-style:none;padding-left:0;margin:10px 0 0 0">
+            <li><a href="#" onclick="alert('Masuk ke Google Classroom');return false">Google Classroom</a></li>
+            <li><a href="#" onclick="alert('Masuk ke Drive');return false">Folder Materi (Drive)</a></li>
+            <li><a href="#" onclick="alert('Masuk ke Forum Diskusi');return false">Forum Diskusi</a></li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4>Kontak</h4>
+          <p class="small muted">Guru: Bapak/Ibu Contoh</p>
+          <p class="small muted">Email: guru@sekolah.edu</p>
+          <a class="btn primary" href="#contact">Hubungi</a>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Contact & Footer -->
+    <section class="card" id="contact" style="margin-top:18px">
+      <div class="section-title">
+        <h3>Gabung / Kontak</h3>
+        <div class="muted">Isi form untuk bergabung atau bertanya</div>
+      </div>
+
+      <form id="contactForm" onsubmit="submitForm(event)" style="display:grid;gap:10px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <input name="name" placeholder="Nama lengkap" required>
+          <input name="email" type="text" placeholder="Email" required>
+        </div>
+        <input name="subject" placeholder="Subjek (mis. Gabung Kelas)">
+        <textarea name="message" rows="4" placeholder="Pesan..."></textarea>
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="reset" class="btn outline">Reset</button>
+          <button type="submit" class="btn primary">Kirim</button>
+        </div>
+      </form>
+    </section>
+
+    <footer>
+      © <span id="year"></span> Sekolah / Guru — Semua hak cipta. Dibuat dengan ❤️ untuk belajar.
+    </footer>
+  </div>
+
+  <!-- Modal Template -->
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <button id="closeModal" style="float:right;border:0;background:none;font-size:18px;cursor:pointer">✕</button>
+      <div id="modalContent">
+        <!-- content diisi via JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Small JS to handle interactivity (menu, modal, scrolling, form)
+    (function(){
+      // Year
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Mobile menu simple toggle - shows nav items as an alert menu (simple)
+      const openMenu = document.getElementById('openMenu');
+      openMenu?.addEventListener('click', () => {
+        const choices = ['Beranda','Silabus','Jadwal','Tugas'];
+        const pick = prompt('Buka: ' + choices.join(' / '));
+        if(!pick) return;
+        const key = pick.toLowerCase();
+        if(key.includes('silabus')) scrollToId('silabus');
+        else if(key.includes('jadwal')) scrollToId('jadwal');
+        else if(key.includes('tugas')) scrollToId('tugas');
+        else scrollToId('home');
+      });
+
+      // Scroll helper
+      function scrollToId(id){
+        const el = document.getElementById(id);
+        if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+      document.querySelectorAll('[data-scroll]').forEach(btn=>{
+        btn.addEventListener('click', ()=> scrollToId(btn.getAttribute('data-scroll')));
+      });
+
+      // Modal
+      const modalBackdrop = document.getElementById('modalBackdrop');
+      const modalContent = document.getElementById('modalContent');
+      const closeModal = document.getElementById('closeModal');
+
+      function openModal(html){
+        modalContent.innerHTML = html;
+        modalBackdrop.classList.add('show');
+        modalBackdrop.setAttribute('aria-hidden','false');
+      }
+      function hideModal(){
+        modalBackdrop.classList.remove('show');
+        modalBackdrop.setAttribute('aria-hidden','true');
+      }
+      closeModal.addEventListener('click', hideModal);
+      modalBackdrop.addEventListener('click', (e)=>{
+        if(e.target === modalBackdrop) hideModal();
+      });
+
+      // Open assignment details
+      document.querySelectorAll('[data-open-modal]').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = btn.getAttribute('data-open-modal');
+          if(id === 'asg-1'){
+            openModal('<h3>Tugas 1 — Ringkasan Bab 1</h3><p class="muted small">Petunjuk lengkap:</p><ul><li>Panjenengan menulis ringkasan 400-600 kata.</li><li>Format PDF, maksimal 2 halaman.</li><li>Kirimkan file lewat email: guru@sekolah.edu</li></ul><p class="small muted">Kriteria penilaian: isi 60%, kerapihan 20%, orisinalitas 20%.</p>');
+          } else if(id === 'asg-2'){
+            openModal('<h3>Proyek Mini — Kelompok</h3><p class="muted small">Petunjuk lengkap:</p><ol><li>Buat tim 3-4 orang.</li><li>Presentasi 10 menit + laporan 2 halaman.</li><li>Gunakan template yang tersedia.</li></ol><p class="small muted">Nilai: 30% tugas, 20% presentasi, 10% kolaborasi.</p>');
+          } else {
+            openModal('<p>Detail tugas tidak ditemukan.</p>');
+          }
+        });
+      });
+
+      // Resources toggle (simple)
+      document.getElementById('resourcesToggle')?.addEventListener('click', (e)=>{
+        e.preventDefault();
+        alert('Sumber: Drive, Video, Materi PDF. (Contoh: guru@sekolah.edu)');
+      });
+
+      // Quick search
+      document.getElementById('quick-search')?.addEventListener('keypress', (e)=>{
+        if(e.key === 'Enter'){
+          const q = e.target.value.trim();
+          if(!q) return;
+          alert('Mencari: ' + q + '\\n(Hanya contoh; integrasikan search backend untuk hasil nyata)');
+        }
+      });
+
+      // Contact form (demo handler)
+      window.submitForm = function(ev){
+        ev.preventDefault();
+        const f = ev.target;
+        const data = new FormData(f);
+        // Basic validation (example)
+        const name = data.get('name') || '';
+        const email = data.get('email') || '';
+        if(!name || !email){ alert('Isi nama dan email'); return; }
+        // In real website: kirim ke server. Di sini: simulasi sukses
+        alert('Terima kasih, ' + name + '. Pesan Anda telah dikirim (simulasi).');
+        f.reset();
+      };
+
+      // Assignment quick open join button
+      document.getElementById('openJoin')?.addEventListener('click', ()=> {
+        openModal('<h3>Daftar Bahan</h3><p class="small muted">1) Materi PDF Minggu 1<br>2) Slide Pembelajaran<br>3) Link video pembelajaran</p><p class="muted small">Unduh materi melalui tautan di sidebar atau kontak guru.</p>');
+      });
+
+      document.getElementById('openAbout')?.addEventListener('click', ()=> {
+        openModal('<h3>Tentang Kelas</h3><p class="muted small">Kelas ini fokus pada penguasaan kompetensi dasar, pembelajaran aktif, dan penilaian terukur. Harap partisipasi aktif dari semua peserta.</p>');
+      });
+
+      // Open modal when click assignment row (accessible)
+      document.querySelectorAll('.assign').forEach(a=>{
+        a.addEventListener('dblclick', ()=> {
+          const id = a.getAttribute('data-id');
+          document.querySelector('[data-open-modal="'+id+'"]')?.click();
+        });
+      });
+    })();
+  </script>
+</body>
+            </html>
